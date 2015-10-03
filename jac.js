@@ -27,7 +27,7 @@ if (Meteor.isClient) {
 
       Meteor.call("addTask", elem);
     },
-    
+
     "click #add": function(e) {
       e.preventDefault();
 
@@ -62,6 +62,9 @@ if (Meteor.isClient) {
 
       var taskId = Session.get('selectedTaskId');
       Session.set('selectedTaskId', null);
+
+      console.log("startDate", $('#start-date').value);
+      console.log("startDate?", $('#start-date'));
 
       var task = {
         name: $('#name').val(),
