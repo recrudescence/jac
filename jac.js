@@ -21,7 +21,29 @@ if (Meteor.isClient) {
   Template.body.helpers({
     tasks: function () {
       // Show newest tasks at the top
-      return Tasks.find({}, {sort: {dueDate: 1}});
+
+    /*
+      Meteor.users.find({_id: Meteor.userId()}, {tasks: 1, _id: 0}, function(err, collection) {
+        collection.toArray(function(err, items) {
+          console.log(items);
+          return items;
+        });
+      });
+  
+  */
+      var result = Meteor.users.find({_id: Meteor.userId()}, {tasks: 1, _id: 0}).fetch();
+      console.log(result[0].tasks);
+
+      return Tasks.find({'_id': {'$in': result[0].tasks}}, {sort: {completed: false, dueDate: 1}});
+
+/*
+          Tasks.find({'_id': {'$in': tasks}}, {sort: {completed: false, dueDate: 1}});
+          */
+        
+      /*
+      console.log(userTasks);
+      return Tasks.find({'_id': {'$in': userTasks}}, {sort: {completed: false, dueDate: 1}});
+      */
     }
   });
 
@@ -64,6 +86,12 @@ if (Meteor.isClient) {
       $('#taskModal').modal('show');
     }
   });
+
+/*
+  Template.user.helpers({
+    var Friends = FacebookCollections.getFriends("me",["id","name"],1000);
+  });
+*/
 
   Template.taskTemplate.events({
     'click #save': function(e) {
@@ -165,31 +193,27 @@ Meteor.methods({
   },
 
   updateOverdueTasks: function (personId) {
-    console.log("personId: " + personId);
+    // console.log("personId: " + personId);
     var currentDate = new Date();
     var user = Meteor.users.findOne({_id: personId});
-    console.log("user: ", user);
-    console.log("user.tasks.length:"+ user.tasks.length);
+    // console.log("user: ", user);
+    // console.log("user.tasks.length:"+ user.tasks.length);
     var newDebt = user.debt;
-    console.log(user.tasks.length);
+    // console.log(user.tasks.length);
     for (i = 0; i < user.tasks.length; i++){
       var taskId = user.tasks[i];
-      console.log(taskId);
+      // console.log(taskId);
 
       var task = Tasks.find({_id: taskId}).fetch()[0];
-      console.log("task: ",  task);
+      // console.log("task: ",  task);
       if (task.dueDate.getTime()<currentDate.getTime() && !task.accountedFor){
         Tasks.update(taskId, {$set: { accountedFor: true}});
         Meteor.users.update({_id: Meteor.userId()}, 
           {$addToSet: {overdueTasks: taskId}});
-        newDebt = newDebt + task.value;
+        newDebt = parseFloat(newDebt) + parseFloat(task.value);
       }
     }
-    Meteor.users.update({_id: Meteor.userId()}, {$set: {debt: newDebt}});
+    Meteor.users.update({_id: Meteor.userId()}, {$inc: {debt: newDebt}});
   }
 
 });
-
-
-
-
