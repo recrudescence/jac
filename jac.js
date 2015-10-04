@@ -63,14 +63,13 @@ if (Meteor.isClient) {
       var taskId = Session.get('selectedTaskId');
       Session.set('selectedTaskId', null);
 
-      console.log("startDate", $('#start-date').value);
-      console.log("startDate?", $('#start-date'));
+      console.log("public", $('#public').val());
 
       var task = {
         name: $('#name').val(),
         public: $('#public').val(),
-        startDate: $('#start-date').val(),
-        dueDate: $('#due-date').val(),
+        startDate: new Date($('#start-date').val()),
+        dueDate: new Date($('#due-date').val()),
         value: $('#value').val(),
         notes: $('#notes').val()
       }
@@ -102,7 +101,7 @@ if (Meteor.isClient) {
       var task = Tasks.findOne(taskId);
       return task;
     } else {
-      return {name:'', public:false, startDate:null, dueDate:null, value:'', notes:'', completed:false};
+      return {name:'', public:'', startDate:'', dueDate:'', value:'', notes:'', completed:''};
     }
   }
 });
