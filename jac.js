@@ -1,5 +1,3 @@
-//EVERYTHING WORKS EXCEPT FOR DATE
-
 Tasks = new Mongo.Collection("tasks");
 People = new Mongo.Collection("people");
 
@@ -40,7 +38,7 @@ if (Meteor.isClient) {
   Template.task.events({
     "click .toggle-checked": function () {
       // Set the checked property to the opposite of its current value
-      Meteor.call("setChecked", this._id, ! this.checked);
+      Meteor.call("setChecked", this._id, ! this.completed);
     },
     "click .delete": function () {
       Meteor.call("deleteTask", this._id);
@@ -49,8 +47,8 @@ if (Meteor.isClient) {
       e.preventDefault();
 
       $(':input:not(:button)', $('#taskModal')[0]).val([]);
-      task = $(e.target).closest('.task')
-      taskId = task.attr('data-id')
+      task = $(e.target).closest('.task');
+      taskId = task.attr('data-id');
       Session.set('selectedTaskId', taskId);
 
       $('#taskModal').modal('show');
@@ -63,11 +61,9 @@ if (Meteor.isClient) {
       var taskId = Session.get('selectedTaskId');
       Session.set('selectedTaskId', null);
 
-      console.log("public", $('#public').val());
-
       var task = {
         name: $('#name').val(),
-        public: $('#public').val(),
+        public: $('#public')[0].checked,
         startDate: new Date($('#start-date').val()),
         dueDate: new Date($('#due-date').val()),
         value: $('#value').val(),
@@ -101,40 +97,11 @@ if (Meteor.isClient) {
       var task = Tasks.findOne(taskId);
       return task;
     } else {
-      return {name:'', public:'', startDate:'', dueDate:'', value:'', notes:'', completed:''};
+      return {name:'', public:false, startDate:'', dueDate:'', value:'', notes:'', completed:false};
     }
   }
 });
 
-/*
-Template.taskModal.events({
-  'click #save': function(e) {
-    e.preventDefault();
-    
-    var taskId = Session.get('selctedTaskId');
-    var task = {
-      name: $('#taskName').val()
-    }
-
-    if (!taskId) {
-      Meteor.call('addTask', task, function(error, result) {
-        if (error) {
-          alert(error);
-        }
-      });
-    } else {
-      _.extend(task, {id: taskId});
-      Meteor.call('editTask', task, function(error, result) {
-        if (error) {
-          alert(error);
-        }
-      });
-    }
-
-    Modal.hide('taskModal');
-  }
-});
-*/
 }
 
 Meteor.methods({
@@ -155,19 +122,20 @@ Meteor.methods({
         value: task.value,
         notes: task.notes,
         completed: false,
+        accountedFor: false,
         createdAt: new Date() // current time
       });
   },
 
   editTask: function(task) {
+
     Tasks.update(task.id, {$set: {
       name: task.name,
       public: task.public,
       startDate: task.startDate,
       dueDate: task.dueDate,
       value: task.value,
-      notes: task.notes,
-      completed: false
+      notes: task.notes
     }});
   },
 
