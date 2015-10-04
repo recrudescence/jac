@@ -10,6 +10,7 @@ if (Meteor.isServer) {
     user.balance = 0;
     user.temp = 0;
     user.alert = false;
+    user.fb_id = user.services.facebook.id;
 
     if(options.profile) {
       user.profile = options.profile;
@@ -54,7 +55,12 @@ if (Meteor.isClient) {
       var result = Meteor.users.find({_id: Meteor.userId()}, {tasks: 1, _id: 0}).fetch();
       console.log(result[0].tasks);
 
-      return Tasks.find({'_id': {'$in': result[0].tasks}}, {sort: {completed: false, dueDate: 1}});
+      if (result[0].tasks !== null){
+        return Tasks.find({'_id': {'$in': result[0].tasks}}, {sort: {completed: false, dueDate: 1}});
+      }
+      else {
+        return null;
+      }
 
     },
     friends: function() {
@@ -104,12 +110,6 @@ if (Meteor.isClient) {
     }
   });
 
-/*
-  Template.user.helpers({
-    var Friends = FacebookCollections.getFriends("me",["id","name"],1000);
-  });
-*/
-
   Template.taskTemplate.events({
     'click #save': function(e) {
 
@@ -121,7 +121,7 @@ if (Meteor.isClient) {
         public: $('#public')[0].checked,
         startDate: new Date($('#start-date').val()),
         dueDate: new Date($('#due-date').val()),
-        value: $('#value').val(),
+        value: parseInt($('#value').val()),
         notes: $('#notes').val()
       }
 
@@ -157,31 +157,6 @@ if (Meteor.isClient) {
   }
 });
 
-Template.fbdata.events({
-    'click #btn-user-data': function(e) {
-        Meteor.call('getUserFriends', function(err, data) {
-             $('#result').text(JSON.stringify(data, undefined, 4));
-         });
-    }
-});
-
-Template.fbfriends.events({
-    'click #btn-user-friends': function(e) {
-      console.log("calling");
-        Meteor.call('getUserFriends', function(err, data) {
-          console.log(data);
-             $('#friend-result').text(JSON.stringify(data, undefined, 4));
-         });
-    }
-  });
-// Template.fbdata.events({
-//     'click #btn-user-data': function(e) {
-//         Meteor.call('getUserData', function(err, data) {
-//              $('#result').text(JSON.stringify(data, undefined, 4));
-//          });
-//     }
-// });
-
 Template.friend.helpers({
   friend: function() {
     return Friends.findOne().data;
@@ -195,10 +170,10 @@ Template.registerHelper('formatDate', function(date) {
 
 Meteor.setInterval(function() {
   Meteor.call('updateOverdueTasks', Meteor.userId());
-}, 300000);
+}, 60000);
 Meteor.setInterval(function() {
   Meteor.call('transferToBalance', Meteor.userId());
-}, 300000);
+}, 60000);
 Meteor.setInterval(function() {
   Meteor.call('checkAlertStatus', Meteor.userId());
 }, 60000);
@@ -250,24 +225,19 @@ Meteor.methods({
     Tasks.update(taskId, { $set: { completed: setChecked} });
   },
   updateOverdueTasks: function (personId) {
-    // console.log("personId: " + personId);
     var currentDate = new Date();
     var user = Meteor.users.findOne({_id: personId});
-    // console.log("user: ", user);
-    // console.log("user.tasks.length:"+ user.tasks.length);
-    var newTemp = user.temp;
-    // console.log(user.tasks.length);
+    var newTemp = parseInt(user.temp);
+
     for (i = 0; i < user.tasks.length; i++){
       var taskId = user.tasks[i];
-      // console.log(taskId);
 
       var task = Tasks.find({_id: taskId}).fetch()[0];
-      // console.log("task: ",  task);
-      if (task.dueDate.getTime()<currentDate.getTime() && !task.accountedFor){
+      if (task.dueDate<currentDate && !task.accountedFor){
         Tasks.update(taskId, {$set: { accountedFor: true}});
         Meteor.users.update({_id: Meteor.userId()}, 
           {$addToSet: {overdueTasks: taskId}});
-        newTemp = parseFloat(newTemp) + parseFloat(task.value);
+        newTemp = parseInt(newTemp) + parseInt(task.value);
       }
     }
     Meteor.users.update({_id: Meteor.userId()}, {$inc: {temp: newTemp}});
@@ -276,22 +246,47 @@ Meteor.methods({
   transferToBalance: function (personId) {
       var user = Meteor.users.findOne({_id: personId});
 
-      var temp = parseFloat(user.temp);
+      console.log("in transferToBalance");
+      var temp = parseInt(user.temp);
 
-      Meteor.users.update({_id: Meteor.userId()}, {$inc: {balance: -1 * temp}});
-      Meteor.users.update({_id: Meteor.userId()}, {$set: {temp: 0}});
+      if (temp > 0){
+        Meteor.users.update({_id: Meteor.userId()}, {$inc: {balance: -1 * temp}});
+        Meteor.users.update({_id: Meteor.userId()}, {$set: {temp: 0}});
 
-      alert("Your balance decreased by " + temp + " because you didn't complete some tasks on time!");
+ //       alert("Your balance decreased by " + temp + " because you didn't complete some tasks on time!");
 
-      var friends = Meteor.friends.find({user_id: Meteor.userId()}).fetch();
+        var friends = user.friends;
+        console.log("friends", friends);
+        console.log("friends[0]", friends[0]);
+        console.log("friends[0].id", friends[0].user_id);
 
-      var friend_id = friends[Math.floor(Math.random() * friends.length)].id;
+        var max_balance = -999999;
+        var max_index = -1;
+        for (i = 0; i < friends.length; i++){
+          var friend = Meteor.users.findOne({_id: friends[i].user_id});
+          console.log("friend", friend);
+          var friend_balance = friend.balance;
+          console.log("friend_balance", friend_balance);
+          console.log("friend_balance: ", friend_balance);
+          if (max_balance < friend_balance) {
+            max_balance = friend_balance;
+            max_index = i;
+          }
+        }
+        console.log("max_index", max_index);
 
-      Meteor.users.update({_id: friend_id}, {$inc: {balance: temp}}, {$set: {alert: true}});
+        if (max_index > -1) {
+          Meteor.users.update({_id: friends[i].user_id}, {$inc: {balance: temp}}, {$set: {alert: true}});
+        }
+
+
+      }
+
+      
   },
 
   checkAlertStatus: function (personId) {
-    Meteor.users.findOne({_id: personId});
+    var user = Meteor.users.findOne({_id: personId});
 
     if (user.alert) {
       Meteor.users.update({_id: personId}, {$set: {alert: false}});
@@ -300,9 +295,15 @@ Meteor.methods({
   },
 
   addFriend: function (thefriend) {
-    Meteor.users.update({ _id: Meteor.userId()}, {$addToSet: {friends: thefriend}});/*
-      id: thefriend.id,
-      name: thefriend.name*/
+    console.log("thefriend.id", thefriend.id);
+    var friend_user = Meteor.users.findOne({"fb_id": thefriend.id});
+  //  var friend_user_fetch = friend_user.fetch();
+    console.log('friend_user', friend_user);
+ //       console.log('friend_user_fetch', friend_user_fetch);
+    if (friend_user) {
+
+      Meteor.users.update({ _id: Meteor.userId()}, {$addToSet: {friends: {user_id: friend_user.id, id: thefriend.id, name: thefriend.name}}});
+    }
   }
 
 });
