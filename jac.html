@@ -1,11 +1,11 @@
 <head>
   <title>Todo List</title>
 
-  <!-- Bootstrap core CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-  <link rel="text/html" href="jac.css">
   <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
   <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="jac.css">
+
 
   </head>
 
@@ -32,7 +32,7 @@
         </div>
 
 
-        <div id="profile-container" class="max col-md-4">
+        <div id="profile-container" class="max col-md-3">
           <div class="row">
             <div class="panel panel-default profile"><div class="panel-body">
             {{> user}}
@@ -41,6 +41,7 @@
           </div>
           <div class="row">
             <div class="panel panel-default social"><div class="panel-body">
+              <h3>Your Friends</h3>
               {{#each friends}}
                 {{> friend}}
               {{/each}}
@@ -48,12 +49,31 @@
           </div>
         </div>
         {{else}}
-          {{>loginButtons}}
+
+    <div class="site-wrapper">
+
+      <div class="site-wrapper-inner">
+
+        <div class="cover-container">
+
+            <div class="inner cover">
+            <h1 class="cover-heading">Welcome to TrackerJac</h1>
+            <p class="lead">If you've ever had trouble finding motivation to complete your tasks -- if you always forget to pay your friends back -- if you seek true meaning in life... TrackerJac is here.</p>
+            <p class="lead">
+                        {{>loginButtons}}
+            </p>
+          </div>
+        </div>
+      </div></div>
         {{/if}}
       </div>
     </div>
-
+<footer class="footer">
+  <small>Made with computers by Ashley, Calvin, Jazzie for WHACK 2015</small>
+</footer>
   </body>
+
+
 
 <template name="taskTemplate">
   <div class="modal fade container" id="taskModal">
@@ -186,12 +206,23 @@
 
 <template name="user">
   
-  {{>loginButtons}}<br>
-  Overall Balance: {{currentUser.balance}}<br>
-  <img src="//graph.facebook.com/{{currentUser.services.facebook.id}}/picture?type=large">
+  <p align="right">{{>loginButtons}}<br></p>
+  <div style="width:100%;height:200px;overflow:hidden">
+  <img class="prof" src="//graph.facebook.com/{{currentUser.services.facebook.id}}/picture?width=300">
+  </div>
+  <center><h3>Balance: {{currentUser.debt}}</h3></center>
 
 </template>
 
 <template name="friend">
-  <img src="//graph.facebook.com/{{id}}/picture">{{name}}<br>
+  <div class="media">
+    <div class="media-left">
+      <a href="#">
+        <img class="media object" src="//graph.facebook.com/{{id}}/picture">
+      </a>
+    </div>
+    <div class="media-body">
+      <h4 class="media-heading">{{name}}</h4>
+    </div>
+  </div>
 </template>
