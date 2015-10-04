@@ -1,5 +1,19 @@
 Tasks = new Mongo.Collection("tasks");
 
+if (Meteor.isServer) {
+
+  Accounts.onCreateUser(function(options, user) {
+    user.tasks = [];
+    user.overdueTasks = [];
+    user.debt = 0;
+    if(options.profile) {
+      user.profile = options.profile;
+    }
+    return user;
+  });
+
+}
+
 if (Meteor.isClient) {
   Meteor.subscribe("tasks");
   Meteor.subscribe("userData");
@@ -51,9 +65,11 @@ if (Meteor.isClient) {
     }
   });
 
+/*
   Template.user.helpers({
     var Friends = FacebookCollections.getFriends("me",["id","name"],1000);
   });
+*/
 
   Template.taskTemplate.events({
     'click #save': function(e) {
@@ -155,11 +171,4 @@ Meteor.methods({
     
   // }
 
-});
-
-Accounts.onCreateUser(function(options, user) {
-  user.tasks = [];
-  user.overdueTasks = [];
-  user.debt = 0;
-  return user;
 });
