@@ -15,6 +15,13 @@ if (Meteor.isServer) {
 }
 
 if (Meteor.isClient) {
+
+  Accounts.ui.config({
+    requestPermissions: {
+      facebook: ['user_friends']
+    }
+  });
+
   Meteor.subscribe("tasks");
   Meteor.subscribe("userData");
   // This code only runs on the client

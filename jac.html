@@ -185,8 +185,8 @@
 
 <template name="user">
   
-  {{currentUser.profile.name}}
-  {{currentUser.debt}}
+  {{>loginButtons}}<br>
+  {{currentUser.debt}}<br>
   <img src="//graph.facebook.com/{{currentUser.services.facebook.id}}/picture?type=large">
 
 </template>
