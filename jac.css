@@ -13,12 +13,13 @@ body {
   padding: 0;
   margin: 0;
 
-  font-size: 14px;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
 }
 
 .container {
   max-width: 80%;
-  margin: 0 auto;
+  margin-top: 10px;
   min-height: 100%;
 }
 
@@ -39,6 +40,7 @@ h1 {
   margin-bottom: 10px;
   display: inline-block;
   margin-right: 1em;
+  font-family: 'Montserrat', sans-serif;
 }
 
 form {
@@ -133,11 +135,16 @@ header .hide-completed {
   background-color: white;
 }
 
-.row {
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-
 .list-items {
   margin-left: 15px;
+}
+
+.max {
+  padding-left: -5px;
+  padding-right: -5px;
+}
+
+.largebox {
+  width: 30px;
+  height: 30px;
 }
