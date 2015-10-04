@@ -13,7 +13,6 @@
 
     <div class="container">
       <div class="max col-md-12">
-      {{>loginButtons}}
       {{#if currentUser}}
         <div id="list-container" class="max col-md-8">
           <div class="panel panel-default">
@@ -32,20 +31,22 @@
           </div>
         </div>
 
+
         <div id="profile-container" class="max col-md-4">
           <div class="row">
             <div class="panel panel-default profile"><div class="panel-body">
             {{> user}}
             </div></div>
+
           </div>
           <div class="row">
             <div class="panel panel-default social"><div class="panel-body">
-              SOCIAL SOCIAL SOCIAL
+              {{> fbfriends}}
             </div></div>
           </div>
         </div>
         {{else}}
-
+          {{>loginButtons}}
         {{/if}}
       </div>
     </div>
@@ -72,7 +73,7 @@
               <div class="form-group">
                 <label for="start-date" class="col-md-2 control-label">Start Date</label>
                 <div class="col-md-4">
-                <input type="date" class="form-control" value={{task.startDate}} name="start-date"/>          
+                <input type="date" class="form-control" value={{task.startDate}} name="start-date" id="start-date"/>          
               </div>
                 <label for="value" class="col-md-1 control-label">Value</label>
                 <div class="col-md-4">
@@ -81,11 +82,11 @@
               <div class="form-group">
                 <label for="due-date" class="col-md-2 control-label">Due Date</label>
                 <div class="col-md-4">
-                <input type="date" class="form-control" value={{task.dueDate}} name="due-date"/>
+                <input type="date" class="form-control" value={{task.dueDate}} name="due-date" id="due-date"/>
               </div>
                 <label for="public" class="col-md-1 control-label">Public?</label>
                 <div class="col-md-4">
-                <input type="checkbox" class="largebox" value={{task.public}} name="public"/>
+                <input type="checkbox" class="largebox" value={{task.public}} name="public" id="public"/>
               </div></div>
               <div class="form-group">
                 <label for="notes" class="col-md-2 control-label">Notes</label>
@@ -191,7 +192,21 @@
 </template>
 
 
+</template>
 
+<template name="fbdata">
+    <button class="btn" id="btn-user-data">Get User Data</button>
+    <div class="well">
+        <pre id="result"></pre>
+    </div>
+</template>
+
+<template name="fbfriends">
+    <button class="btn" id="btn-user-friends">Get friends</button>
+    <div class="well">
+        <pre id="friend-result"></pre>
+    </div>
+</template>
 
 
 

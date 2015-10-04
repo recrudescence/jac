@@ -44,6 +44,7 @@ if (Meteor.isClient) {
       console.log(userTasks);
       return Tasks.find({'_id': {'$in': userTasks}}, {sort: {completed: false, dueDate: 1}});
       */
+
     }
   });
 
@@ -140,9 +141,28 @@ if (Meteor.isClient) {
   }
 });
 
+Template.fbdata.events({
+    'click #btn-user-data': function(e) {
+        Meteor.call('getUserFriends', function(err, data) {
+             $('#result').text(JSON.stringify(data, undefined, 4));
+         });
+    }
+});
+
+Template.fbfriends.events({
+    'click #btn-user-friends': function(e) {
+      console.log("calling");
+        Meteor.call('getUserFriends', function(err, data) {
+          console.log(data);
+             $('#friend-result').text(JSON.stringify(data, undefined, 4));
+         });
+    }
+});
+
 }
 
 Meteor.methods({
+
   addTask: function (task) {
     // Make sure the user is logged in before inserting a task
 
@@ -185,6 +205,16 @@ Meteor.methods({
   setChecked: function (taskId, setChecked) {
     Tasks.update(taskId, { $set: { completed: setChecked} });
   }
+<<<<<<< HEAD
+=======
+
+  // getOverdueTasks
+  // get values of tasks that don't have accounted for
+
+  // getOverdueTasks: function(personId){
+    
+  // }
+>>>>>>> facebook graph stuff for social
 
   // getOverdueTasks
   // get values of tasks that don't have accounted for
