@@ -6,7 +6,9 @@ if (Meteor.isServer) {
   Accounts.onCreateUser(function(options, user) {
     user.tasks = [];
     user.overdueTasks = [];
-    user.debt = 0;
+    user.balance = 0;
+    user.temp = 0;
+    user.alert = false;
     if(options.profile) {
       user.profile = options.profile;
     }
@@ -187,6 +189,12 @@ Template.registerHelper('formatDate', function(date) {
 
 Meteor.setInterval(function() {
   Meteor.call('updateOverdueTasks', Meteor.userId());
+}, 300000);
+Meteor.setInterval(function() {
+  Meteor.call('transferToBalance', Meteor.userId());
+}, 300000);
+Meteor.setInterval(function() {
+  Meteor.call('checkAlertStatus', Meteor.userId());
 }, 60000);
 
 }
@@ -236,7 +244,7 @@ Meteor.methods({
     var user = Meteor.users.findOne({_id: personId});
     // console.log("user: ", user);
     // console.log("user.tasks.length:"+ user.tasks.length);
-    var newDebt = user.debt;
+    var newTemp = user.temp;
     // console.log(user.tasks.length);
     for (i = 0; i < user.tasks.length; i++){
       var taskId = user.tasks[i];
@@ -248,10 +256,36 @@ Meteor.methods({
         Tasks.update(taskId, {$set: { accountedFor: true}});
         Meteor.users.update({_id: Meteor.userId()}, 
           {$addToSet: {overdueTasks: taskId}});
-        newDebt = parseFloat(newDebt) + parseFloat(task.value);
+        newTemp = parseFloat(newTemp) + parseFloat(task.value);
       }
     }
-    Meteor.users.update({_id: Meteor.userId()}, {$inc: {debt: newDebt}});
+    Meteor.users.update({_id: Meteor.userId()}, {$inc: {temp: newTemp}});
+  },
+
+  transferToBalance: function (personId) {
+      var user = Meteor.users.findOne({_id: personId});
+
+      var temp = parseFloat(user.temp);
+
+      Meteor.users.update({_id: Meteor.userId()}, {$inc: {balance: -1 * temp}});
+      Meteor.users.update({_id: Meteor.userId()}, {$set: {temp: 0}});
+
+      alert("Your balance decreased by " + temp + " because you didn't complete some tasks on time!");
+
+      var friends = Meteor.friends.find({user_id: Meteor.userId()}).fetch();
+
+      var friend_id = friends[Math.floor(Math.random() * friends.length)].id;
+
+      Meteor.users.update({_id: friend_id}, {$inc: {balance: temp}}, {$set: {alert: true}});
+  },
+
+  checkAlertStatus: function (personId) {
+    Meteor.users.findOne({_id: personId});
+
+    if (user.alert) {
+      Meteor.users.update({_id: personId}, {$set: {alert: false}});
+      alert("Your balance increased to " + user.balance + " because one of your friends suck at completing tasks on time!");
+    }
   }
 
 });
