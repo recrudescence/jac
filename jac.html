@@ -55,7 +55,7 @@
           <input type="text" id="name" value={{task.name}} placeholder="make a pizza" />
 
           <label for="public">Public?</label>
-          <input type="checkbox" value={{task.public}} id="public"/>
+          <input type="checkbox" checked={{task.public}} id="public"/>
 
           <label for="start-date">Start Date</label>
           <input type="date" value={{task.startDate}} id="start-date"/>          
@@ -86,7 +86,7 @@
     
 
     <label class="checkbox">
-      <input type="checkbox" checked="{{checked}}" name="checked">
+      <input type="checkbox" checked="{{completed}}" name="checked" class="toggle-checked" >
       <span class="checkbox-custom"></span>
     </label>
 
