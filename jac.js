@@ -205,16 +205,6 @@ Meteor.methods({
   setChecked: function (taskId, setChecked) {
     Tasks.update(taskId, { $set: { completed: setChecked} });
   }
-<<<<<<< HEAD
-=======
-
-  // getOverdueTasks
-  // get values of tasks that don't have accounted for
-
-  // getOverdueTasks: function(personId){
-    
-  // }
->>>>>>> facebook graph stuff for social
 
   // getOverdueTasks
   // get values of tasks that don't have accounted for
