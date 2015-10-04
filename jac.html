@@ -31,7 +31,7 @@
 
         <div id="profile-container" class="max col-md-4 col-md-offset-1">
           <div class="row profile">
-            PROFILE PROFILE PROFILE
+            {{> user}}
           </div>
           <div class="row social">
             SOCIAL SOCIAL SOCIAL
@@ -102,3 +102,28 @@
 
   </div>
 </template>
+
+<template name="user">
+  
+  {{currentUser.services.facebook.email}}
+  {{currentUser._id}}
+  {{currentUser.profile.name}}
+  {{currentUser.services.facebook.accessToken}}
+  {{debt}}
+  {{facebook.user_friends}}
+  {{completionRate}}
+
+</template>
+
+
+
+
+
+
+
+
+
+
+<!--
+
+{ "_id" : "WvZvy5euANDYQR8Q7", "createdAt" : ISODate("2015-10-04T01:59:19.610Z"), "services" : { "facebook" : { "accessToken" : "CAAHjv04zXZB0BAIkDYxPNjCQcbJ7kzxLTHjDBzYOdDNU1NNj8wQj1giArnJaOijw6QUjjlo3IciZCbmpA1nZAtRpCXM4hVy1U9vLgasUXDNFjtW1MPJkZC1AACW0L1l6TjRNQKgVS5ZAzOf0CZCPQebaBqy1iA7BuATIJ7XJ2ZBZBo5FMAhHelslyFweOepfy0mdY1DAuYVawgZDZD", "expiresAt" : 1449107958527, "id" : "10206789858919212", "email" : "athomas353@comcast.net", "name" : "Ashley Jihye Thomas", "first_name" : "Ashley", "last_name" : "Thomas", "link" : "https://www.facebook.com/app_scoped_user_id/10206789858919212/", "gender" : "female", "locale" : "en_US", "age_range" : { "max" : 20, "min" : 18 } }, "resume" : { "loginTokens" : [ { "when" : ISODate("2015-10-04T01:59:24.614Z"), "hashedToken" : "807q/PJAFQwnY64x7ToyIJaj87PtAyANAESSjBqe1iI=" } ] } }, "profile" : { "name" : "Ashley Jihye Thomas" } } -->

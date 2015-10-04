@@ -1,17 +1,16 @@
 Tasks = new Mongo.Collection("tasks");
-People = new Mongo.Collection("people");
 
 if (Meteor.isClient) {
   Meteor.subscribe("tasks");
-  Meteor.subscribe("people");
+
   // This code only runs on the client
   Template.body.helpers({
     tasks: function () {
       // Show newest tasks at the top
       return Tasks.find({}, {sort: {dueDate: 1}});
     },
-    people: function() {
-      return People.find();
+    users: function() {
+      return Users.find()
     }
   });
 
@@ -53,6 +52,10 @@ if (Meteor.isClient) {
 
       $('#taskModal').modal('show');
     }
+  });
+
+  Template.user.helpers({
+    var Friends = FacebookCollections.getFriends("me",["id","name"],1000);
   });
 
   Template.taskTemplate.events({
@@ -145,10 +148,5 @@ Meteor.methods({
   setChecked: function (taskId, setChecked) {
     Tasks.update(taskId, { $set: { completed: setChecked} });
   }
-  /*
-  getTasks: function (personId) {
-    People.find({_id:personId});
-  }
-  */
 
 });
