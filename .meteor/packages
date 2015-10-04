@@ -9,9 +9,9 @@ twbs:bootstrap
 peppelg:bootstrap-3-modal
 accounts-facebook
 accounts-ui
-maxkferg:facebook-collections
 stevezhu:fbgraph
 meteorhacks:npm
 
 
 npm-container
+momentjs:moment
