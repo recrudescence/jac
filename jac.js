@@ -21,7 +21,29 @@ if (Meteor.isClient) {
   Template.body.helpers({
     tasks: function () {
       // Show newest tasks at the top
-      return Tasks.find({}, {sort: {dueDate: 1}});
+
+    /*
+      Meteor.users.find({_id: Meteor.userId()}, {tasks: 1, _id: 0}, function(err, collection) {
+        collection.toArray(function(err, items) {
+          console.log(items);
+          return items;
+        });
+      });
+  
+  */
+      var result = Meteor.users.find({_id: Meteor.userId()}, {tasks: 1, _id: 0}).fetch();
+      console.log(result[0].tasks);
+
+      return Tasks.find({'_id': {'$in': result[0].tasks}}, {sort: {completed: false, dueDate: 1}});
+
+/*
+          Tasks.find({'_id': {'$in': tasks}}, {sort: {completed: false, dueDate: 1}});
+          */
+        
+      /*
+      console.log(userTasks);
+      return Tasks.find({'_id': {'$in': userTasks}}, {sort: {completed: false, dueDate: 1}});
+      */
     }
   });
 

@@ -105,9 +105,9 @@
 
 <template name="user">
   
-  {{currentUser.services.facebook.email}}
   {{currentUser.profile.name}}
   {{currentUser.debt}}
+  <img src="//graph.facebook.com/{{currentUser.services.facebook.id}}/picture?type=large">
 
 </template>
 
