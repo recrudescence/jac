@@ -1,17 +1,27 @@
 Tasks = new Mongo.Collection("tasks");
-People = new Mongo.Collection("people");
+
+if (Meteor.isServer) {
+
+  Accounts.onCreateUser(function(options, user) {
+    user.tasks = [];
+    user.overdueTasks = [];
+    user.debt = 0;
+    if(options.profile) {
+      user.profile = options.profile;
+    }
+    return user;
+  });
+
+}
 
 if (Meteor.isClient) {
   Meteor.subscribe("tasks");
-  Meteor.subscribe("people");
+  Meteor.subscribe("userData");
   // This code only runs on the client
   Template.body.helpers({
     tasks: function () {
       // Show newest tasks at the top
       return Tasks.find({}, {sort: {dueDate: 1}});
-    },
-    people: function() {
-      return People.find();
     }
   });
 
@@ -54,6 +64,12 @@ if (Meteor.isClient) {
       $('#taskModal').modal('show');
     }
   });
+
+/*
+  Template.user.helpers({
+    var Friends = FacebookCollections.getFriends("me",["id","name"],1000);
+  });
+*/
 
   Template.taskTemplate.events({
     'click #save': function(e) {
@@ -102,9 +118,28 @@ if (Meteor.isClient) {
   }
 });
 
+Template.fbdata.events({
+    'click #btn-user-data': function(e) {
+        Meteor.call('getUserFriends', function(err, data) {
+             $('#result').text(JSON.stringify(data, undefined, 4));
+         });
+    }
+});
+
+Template.fbfriends.events({
+    'click #btn-user-friends': function(e) {
+      console.log("calling");
+        Meteor.call('getUserFriends', function(err, data) {
+          console.log(data);
+             $('#friend-result').text(JSON.stringify(data, undefined, 4));
+         });
+    }
+});
+
 }
 
 Meteor.methods({
+
   addTask: function (task) {
     // Make sure the user is logged in before inserting a task
 
@@ -113,7 +148,6 @@ Meteor.methods({
       throw new Meteor.Error("not-authorized");
     }
     */
-
       Tasks.insert({
         name: task.name,
         public: task.public,
@@ -124,6 +158,9 @@ Meteor.methods({
         completed: false,
         accountedFor: false,
         createdAt: new Date() // current time
+      }, function(err, doc){
+        Meteor.users.update({_id: Meteor.userId()}, {$addToSet: {tasks: doc}},
+          {upsert: true});
       });
   },
 
@@ -145,10 +182,12 @@ Meteor.methods({
   setChecked: function (taskId, setChecked) {
     Tasks.update(taskId, { $set: { completed: setChecked} });
   }
-  /*
-  getTasks: function (personId) {
-    People.find({_id:personId});
-  }
-  */
+
+  // getOverdueTasks
+  // get values of tasks that don't have accounted for
+
+  // getOverdueTasks: function(personId){
+    
+  // }
 
 });
