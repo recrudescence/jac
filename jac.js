@@ -1,5 +1,19 @@
 Tasks = new Mongo.Collection("tasks");
 
+if (Meteor.isServer) {
+
+  Accounts.onCreateUser(function(options, user) {
+    user.tasks = [];
+    user.overdueTasks = [];
+    user.debt = 0;
+    if(options.profile) {
+      user.profile = options.profile;
+    }
+    return user;
+  });
+
+}
+
 if (Meteor.isClient) {
   Meteor.subscribe("tasks");
   Meteor.subscribe("userData");
@@ -36,9 +50,9 @@ if (Meteor.isClient) {
       // Set the checked property to the opposite of its current value
       Meteor.call("setChecked", this._id, ! this.completed);
     },
-    "click .delete": function () {
-      Meteor.call("deleteTask", this._id);
-    },
+    // "click .delete": function () {
+    //   Meteor.call("deleteTask", this._id);
+    // },
     'click #edit': function(e) {
       e.preventDefault();
 
@@ -82,7 +96,7 @@ if (Meteor.isClient) {
     }
 
     $('#taskModal').modal('hide');
-    }
+    },
   });
 
   Template.taskTemplate.helpers({
@@ -96,7 +110,12 @@ if (Meteor.isClient) {
       return {name:'', public:false, startDate:'', dueDate:'', value:'', notes:'', completed:false};
     }
   }
-});
+  });
+
+  Meteor.setInterval(function() {
+    Meteor.call('updateOverdueTasks', Meteor.userId());
+  }, 60000);
+
 
 }
 
@@ -123,7 +142,8 @@ Meteor.methods({
         Meteor.users.update({_id: Meteor.userId()}, {$addToSet: {tasks: doc}},
           {upsert: true});
       });
-  },
+
+    },
 
   editTask: function(task) {
 
@@ -137,25 +157,39 @@ Meteor.methods({
     }});
   },
 
-  deleteTask: function (taskId) {
-    Tasks.remove(taskId);
-  },
+  // deleteTask: function (taskId) {
+  //   Tasks.remove(taskId);
+  // },
   setChecked: function (taskId, setChecked) {
     Tasks.update(taskId, { $set: { completed: setChecked} });
+  },
+
+  updateOverdueTasks: function (personId) {
+    console.log("personId: " + personId);
+    var currentDate = new Date();
+    var user = Meteor.users.findOne({_id: personId});
+    console.log("user: ", user);
+    console.log("user.tasks.length:"+ user.tasks.length);
+    var newDebt = user.debt;
+    console.log(user.tasks.length);
+    for (i = 0; i < user.tasks.length; i++){
+      var taskId = user.tasks[i];
+      console.log(taskId);
+
+      var task = Tasks.find({_id: taskId}).fetch()[0];
+      console.log("task: ",  task);
+      if (task.dueDate.getTime()<currentDate.getTime() && !task.accountedFor){
+        Tasks.update(taskId, {$set: { accountedFor: true}});
+        Meteor.users.update({_id: Meteor.userId()}, 
+          {$addToSet: {overdueTasks: taskId}});
+        newDebt = newDebt + task.value;
+      }
+    }
+    Meteor.users.update({_id: Meteor.userId()}, {$set: {debt: newDebt}});
   }
 
-  // getOverdueTasks
-  // get values of tasks that don't have accounted for
-
-  // getOverdueTasks: function(personId){
-    
-  // }
-
 });
 
-Accounts.onCreateUser(function(options, user) {
-  user.tasks = [];
-  user.overdueTasks = [];
-  user.debt = 0;
-  return user;
-});
+
+
+
