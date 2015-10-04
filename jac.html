@@ -41,7 +41,9 @@
           </div>
           <div class="row">
             <div class="panel panel-default social"><div class="panel-body">
-              {{> fbfriends}}
+              {{#each friends}}
+                {{> friend}}
+              {{/each}}
             </div></div>
           </div>
         </div>
@@ -178,8 +180,7 @@
       <a href="#" id="edit">{{name}}</a>
   	</span>
 
-    <button class="delete">&times;</button>
-
+    <!-- <span class="pull-right"><i>{{formatDate dueDate}}</i></span> -->
   </div>
 </template>
 
@@ -189,22 +190,11 @@
   {{currentUser.services.facebook.email}}<br>
   {{currentUser.profile.name}}<br>
   {{currentUser.debt}}<br>
-  {{>fbdata}}
 
 </template>
 
-<template name="fbdata">
-    <button class="btn" id="btn-user-data">Get User Data</button>
-    <div class="well">
-        <pre id="result"></pre>
-    </div>
-</template>
-
-<template name="fbfriends">
-    <button class="btn" id="btn-user-friends">Get friends</button>
-    <div class="well">
-        <pre id="friend-result"></pre>
-    </div>
+<template name="friend">
+  {{friend.id}}
 </template>
 
 

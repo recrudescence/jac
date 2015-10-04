@@ -13,7 +13,6 @@ function Facebook(accessToken) {
 }
 
 Facebook.prototype.query = function(query, method) {
-	console.log(query);
     var self = this;
     var method = (typeof method === 'undefined') ? 'get' : method;
     var data = Meteor.sync(function(done) {
@@ -21,8 +20,6 @@ Facebook.prototype.query = function(query, method) {
             done(null, res);
         });
     });
-    console.log("data::::: " + data.toString());
-    console.log(data.result);
     return data.result;
 }
 
@@ -31,7 +28,6 @@ Facebook.prototype.getUserData = function() {
 }
 
 Facebook.prototype.getUserFriends = function() {
-	console.log("finding friends");
     return this.query('me/friends');
 }
 
