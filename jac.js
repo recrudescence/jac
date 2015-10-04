@@ -183,6 +183,7 @@ Template.fbfriends.events({
              $('#friend-result').text(JSON.stringify(data, undefined, 4));
          });
     }
+  });
 // Template.fbdata.events({
 //     'click #btn-user-data': function(e) {
 //         Meteor.call('getUserData', function(err, data) {
