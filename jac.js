@@ -1,17 +1,13 @@
 Tasks = new Mongo.Collection("tasks");
-People = new Mongo.Collection("people");
 
 if (Meteor.isClient) {
   Meteor.subscribe("tasks");
-  Meteor.subscribe("people");
+  Meteor.subscribe("userData");
   // This code only runs on the client
   Template.body.helpers({
     tasks: function () {
       // Show newest tasks at the top
       return Tasks.find({}, {sort: {dueDate: 1}});
-    },
-    people: function() {
-      return People.find();
     }
   });
 
@@ -113,7 +109,6 @@ Meteor.methods({
       throw new Meteor.Error("not-authorized");
     }
     */
-
       Tasks.insert({
         name: task.name,
         public: task.public,
@@ -124,6 +119,9 @@ Meteor.methods({
         completed: false,
         accountedFor: false,
         createdAt: new Date() // current time
+      }, function(err, doc){
+        Meteor.users.update({_id: Meteor.userId()}, {$addToSet: {tasks: doc}},
+          {upsert: true});
       });
   },
 
@@ -145,10 +143,19 @@ Meteor.methods({
   setChecked: function (taskId, setChecked) {
     Tasks.update(taskId, { $set: { completed: setChecked} });
   }
-  /*
-  getTasks: function (personId) {
-    People.find({_id:personId});
-  }
-  */
 
+  // getOverdueTasks
+  // get values of tasks that don't have accounted for
+
+  // getOverdueTasks: function(personId){
+    
+  // }
+
+});
+
+Accounts.onCreateUser(function(options, user) {
+  user.tasks = [];
+  user.overdueTasks = [];
+  user.debt = 0;
+  return user;
 });
