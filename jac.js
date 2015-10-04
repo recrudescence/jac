@@ -1,4 +1,5 @@
 Tasks = new Mongo.Collection("tasks");
+Friends = new Mongo.Collection("friends");
 
 if (Meteor.isServer) {
 
@@ -18,11 +19,12 @@ if (Meteor.isClient) {
 
   Accounts.ui.config({
     requestPermissions: {
-      facebook: ['user_friends']
-    }
+        facebook: ['email', 'user_friends'],
+      }
   });
 
   Meteor.subscribe("tasks");
+  Meteor.subscribe("friends");
   Meteor.subscribe("userData");
   // This code only runs on the client
   Template.body.helpers({
@@ -52,6 +54,23 @@ if (Meteor.isClient) {
       return Tasks.find({'_id': {'$in': userTasks}}, {sort: {completed: false, dueDate: 1}});
       */
 
+    },
+    friends: function() {
+      console.log("asdasd2");
+      Meteor.call('getUserFriends', function(err, data) {
+        console.log("WWWWW", data);
+        $('#friend-result').text(JSON.stringify(data, undefined, 4));
+        if (typeof data !== "undefined") {
+        for (var i = data.length - 1; i >= 0; i--) {
+          Friends.add(data[i]);
+        };
+        return Friends.find({});
+      } else {
+        return "nothing";
+      }
+
+    });
+      
     }
   });
 
@@ -164,6 +183,23 @@ Template.fbfriends.events({
              $('#friend-result').text(JSON.stringify(data, undefined, 4));
          });
     }
+// Template.fbdata.events({
+//     'click #btn-user-data': function(e) {
+//         Meteor.call('getUserData', function(err, data) {
+//              $('#result').text(JSON.stringify(data, undefined, 4));
+//          });
+//     }
+// });
+
+Template.friend.helpers({
+  friend: function() {
+    return Friends.findOne().data;
+  }
+
+});
+
+Template.registerHelper('formatDate', function(date) {
+  return moment(date).format('ddd, MMM Do YYYY');
 });
 
 }
@@ -212,12 +248,5 @@ Meteor.methods({
   setChecked: function (taskId, setChecked) {
     Tasks.update(taskId, { $set: { completed: setChecked} });
   }
-
-  // getOverdueTasks
-  // get values of tasks that don't have accounted for
-
-  // getOverdueTasks: function(personId){
-    
-  // }
 
 });

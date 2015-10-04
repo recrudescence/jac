@@ -9,9 +9,16 @@ twbs:bootstrap
 peppelg:bootstrap-3-modal
 accounts-facebook
 accounts-ui
+<<<<<<< HEAD
 maxkferg:facebook-collections
+=======
+>>>>>>> bc059d91d12f5d50743f55f8c21f17a2c41638b4
 stevezhu:fbgraph
 meteorhacks:npm
 
 
 npm-container
+<<<<<<< HEAD
+=======
+momentjs:moment
+>>>>>>> bc059d91d12f5d50743f55f8c21f17a2c41638b4
