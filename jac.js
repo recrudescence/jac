@@ -5,10 +5,12 @@ if (Meteor.isServer) {
 
   Accounts.onCreateUser(function(options, user) {
     user.tasks = [];
+    user.friends = [];
     user.overdueTasks = [];
     user.balance = 0;
     user.temp = 0;
     user.alert = false;
+
     if(options.profile) {
       user.profile = options.profile;
     }
@@ -25,6 +27,22 @@ if (Meteor.isClient) {
       }
   });
 
+  Meteor.call('getUserFriends', function(err, data) {
+        console.log("WWWWW", data);
+        var f_array = data.data;
+        console.log(f_array);
+
+        if (typeof data !== "undefined") {
+        for (var i = 0; i <= f_array.length-1 ; i++) {
+          console.log(f_array[i]);
+          Meteor.call("addFriend", f_array[i]);
+        };
+      } else {
+        console.log("nothing");
+        return "nothing";
+      }
+    });
+
   Meteor.subscribe("tasks");
   Meteor.subscribe("friends");
   Meteor.subscribe("userData");
@@ -40,23 +58,11 @@ if (Meteor.isClient) {
 
     },
     friends: function() {
-      console.log("asdasd2");
-      Meteor.call('getUserFriends', function(err, data) {
-        console.log("WWWWW", data);
-        $('#friend-result').text(JSON.stringify(data, undefined, 4));
-        if (typeof data !== "undefined") {
-        for (var i = data.length - 1; i >= 0; i--) {
-          Friends.add(data[i]);
-        };
-        return Friends.find({});
-      } else {
-        return "nothing";
-      }
 
-    });
-      
+        return Meteor.users.find({_id: Meteor.userId()}).fetch()[0].friends;
     }
-  });
+    }      
+  );
 
   Template.body.events({
     "submit .new-task": function (event) {
@@ -197,6 +203,11 @@ Meteor.setInterval(function() {
   Meteor.call('checkAlertStatus', Meteor.userId());
 }, 60000);
 
+
+Template.registerHelper('formatDate', function(date) {
+  return moment(date).format('ddd, MMM Do YYYY');
+});
+
 }
 
 Meteor.methods({
@@ -286,6 +297,12 @@ Meteor.methods({
       Meteor.users.update({_id: personId}, {$set: {alert: false}});
       alert("Your balance increased to " + user.balance + " because one of your friends suck at completing tasks on time!");
     }
+  },
+
+  addFriend: function (thefriend) {
+    Meteor.users.update({ _id: Meteor.userId()}, {$addToSet: {friends: thefriend}});/*
+      id: thefriend.id,
+      name: thefriend.name*/
   }
 
 });

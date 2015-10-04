@@ -10,6 +10,7 @@ Meteor.publish('userData', function() {
 		return Meteor.users.find({_id: this.userId}, {fields: {
 			debt: 1,
 			'tasks': 1,
+			friends: 1,
 			'overdueTasks': 1,
 			'services.facebook': 1
 		}});
