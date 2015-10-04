@@ -1,26 +1,45 @@
 <head>
   <title>Todo List</title>
-</head>
 
-<body>
-  <div class="container">
-    <header>
-      <h1>Todo List</h1>
-    </header>
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="jac.css">
 
+  </head>
 
-	<a href="#" id="add" class="btn btn-primary">Add</a>
-	{{> taskTemplate}}
+  <body>
 
-    <ul>
-      {{#each tasks}}
-        {{> task}}
-      {{/each}}
-    </ul>
-  </div>
+    <div class="container">
+      <div class="max col-md-12">
+        <div id="list-container" class="max col-md-7">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <a href="#" id="add" class="btn btn-primary col-md-offset-10">Add New</a>
+              {{> taskTemplate}}
+            </div>
+            <div class="panel-body">
+              <div class="content-scrollable list-items">
+                {{#each tasks}}
+                  {{> task}}
+                {{/each}}
+              </div>
+            </div>
+          </div>
+        </div>
 
-</body>
+        <div id="profile-container" class="max col-md-4 col-md-offset-1">
+          <div class="row profile">
+            PROFILE PROFILE PROFILE
+          </div>
+          <div class="row social">
+            SOCIAL SOCIAL SOCIAL
+          </div>
+        </div>
 
+      </div>
+    </div>
+
+  </body>
 
 <template name="taskTemplate">
   <div class="modal fade" id="taskModal">
@@ -63,13 +82,19 @@
 </template>
 
 <template name="task">
-  <li class="{{#if checked}}checked{{/if}}">
+  <div class="{{#if checked}}checked{{/if}}">
+    
+
+    <label class="checkbox">
+      <input type="checkbox" checked="{{checked}}" name="checked">
+      <span class="checkbox-custom"></span>
+    </label>
+
+    <span class="task" data-id="{{_id}}">
+      <a href="#" id="edit">{{name}}</a>
+  	</span>
+
     <button class="delete">&times;</button>
 
-    <input type="checkbox" checked="{{checked}}" class="toggle-checked" />
-
-    <div class="task" data-id="{{_id}}">
-    <a href="#" id="edit"><span class="text">{{name}}</span></a>
-	</div>
-  </li>
+  </div>
 </template>
